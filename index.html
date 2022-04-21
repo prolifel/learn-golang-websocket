@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Golang Learn Websocket</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Archivo+Black&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Archivo:700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      .card {
+        background-color: var(--background);
+        display: block;
+        width: 300px;
+        min-height: 90px;
+        border: 3px solid var(--primary);
+        padding: 15px;
+        margin: calc(10vh - 30px) auto 0 auto;
+        box-shadow: 10px -10px 0 -3px var(--background), 10px -10px var(--green),
+          20px -20px 0 -3px var(--background), 20px -20px var(--yellow),
+          30px -30px 0 -3px var(--background), 30px -30px var(--orange),
+          40px -40px 0 -3px var(--background), 40px -40px var(--red);
+        transition: box-shadow 1s, top 1s, left 1s;
+        position: relative;
+        top: 0;
+        left: 0;
+        cursor: pointer;
+      }
+
+      .card:hover {
+        top: -40px;
+        left: 40px;
+        box-shadow: 0 0 0 -3px var(--background), 0 0 0 0 var(--green),
+          0 0 0 -3px var(--background), 0 0 0 0 var(--yellow),
+          0 0 0 -3px var(--background), 0 0 0 0 var(--orange),
+          0 0 0 -3px var(--background), 0 0 0 0 var(--red);
+      }
+
+      :root {
+        --primary: #555bff;
+        --secondary: #22d2a0;
+        --background: white;
+        --green: #1fc11b;
+        --yellow: #ffd913;
+        --orange: #ff9c55;
+        --red: #ff5555;
+      }
+
+      * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      html {
+        display: table;
+        margin: auto;
+      }
+
+      body {
+        background-image: radial-gradient(
+          var(--secondary) 30%,
+          var(--background) 30%
+        );
+        background-size: 2px 3px;
+        font-family: "Archivo", sans-serif;
+        color: var(--primary);
+        display: table-cell;
+        vertical-align: middle;
+      }
+
+      .card p {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 10px;
+      }
+
+      .card h2 {
+        font-size: 14px;
+        font-family: "Archivo Black", "Archivo", sans-serif;
+        font-weight: normal;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <p>Wind</p>
+      <h2 id="wind"></h2>
+      <h2 id="windDescription"></h2>
+    </div>
+    <div class="card">
+      <p>Water</p>
+      <h2 id="water"></h2>
+      <h2 id="waterDescription"></h2>
+    </div>
+
+    <script>
+      let wscon = () => {
+        let ws = new WebSocket("ws://localhost:8080/ws");
+        ws.onopen = function (e) {
+          document.getElementById("connection").innerText =
+            "Berhasil terkoneksi!";
+        };
+        ws.onmessage = function (e) {
+          let data = JSON.parse(e.data).status[0];
+
+          let windDescription =
+            data.wind <= 6
+              ? "Aman"
+              : data.wind >= 7 && data.wind <= 15
+              ? "Siaga"
+              : "Bahaya";
+          let waterDescription =
+            data.water <= 5
+              ? "Aman"
+              : data.water >= 6 && data.water <= 8
+              ? "Siaga"
+              : "Bahaya";
+
+          document.getElementById("wind").innerText = `${data.wind}m/s`;
+          document.getElementById(
+            "windDescription"
+          ).innerText = `Status ${windDescription}`;
+          document.getElementById("water").innerText = `${data.water}m`;
+          document.getElementById(
+            "waterDescription"
+          ).innerText = `Status ${waterDescription}`;
+        };
+        ws.onclose = function (e) {
+          console.log("Connection Closed..");
+          document.getElementById("connection").innerText = "Not Connected...";
+        };
+      };
+
+      wscon();
+    </script>
+  </body>
+</html>
